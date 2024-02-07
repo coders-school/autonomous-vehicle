@@ -68,3 +68,31 @@ class atrous_spatial_pyramid_pooling(nn.Module):
 
         output = self.project(torch.cat(conv_outputs, dim=1))
         return output
+        
+        
+class deeplabv3_decoder(nn.Module):
+    def __init__(self, num_classes):
+        super(deeplabv3_decoder, self).__init__()
+        self.num_classes = num_classes
+
+        self.low_level_project = nn.Sequential(
+            nn.Conv2d(256, 48, kernel_size=1, bias=False),
+            nn.BatchNorm2d(48),
+            nn.ReLU())
+
+        self.cls = nn.Sequential(
+            nn.Conv2d(304, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256), nn.ReLU(),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256), nn.ReLU(),
+            nn.Conv2d(256, self.num_classes, kernel_size=1))
+
+    def forward(self, x, low_level_feat):
+        low_level_feat = self.low_level_project(low_level_feat)
+
+        x = F.interpolate(x, size=low_level_feat.size()[2:], mode='bilinear', align_corners=False)
+
+        x = torch.cat((x, low_level_feat), dim=1)
+
+        x = self.cls(x)
+        return x
