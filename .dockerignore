@@ -1,0 +1,22 @@
+Dockerfile
+
+# Ignore Python virtual environment files
+.venv/
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore log files
+*.log
+
+# Ignore readme files
+README.md
+
+# Ignore development and test files
+*.dev
+*.test
+
+# Ignore any other files or directories specific to your project
