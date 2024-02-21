@@ -15,5 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the code to the container
 COPY . .
 
+# Start from python/segmentation directory
+WORKDIR /app/python/segmentation
+
 # Set the entry point for the container
-CMD [ "python", "python/segmentation/main.py" ]
+CMD [ "python", "main.py" ]
