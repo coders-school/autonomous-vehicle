@@ -20,3 +20,7 @@ README.md
 *.test
 
 # Ignore any other files or directories specific to your project
+.DS_Store
+.dockerignore
+.git
+.gitignore
