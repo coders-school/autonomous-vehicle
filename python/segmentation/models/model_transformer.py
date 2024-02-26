@@ -93,3 +93,88 @@ class efficient_self_attention(nn.Module):
         x = F.dropout(x, p=self.dropout_p, training=self.training)
         return x
         
+        
+class transformer_block(nn.Module):
+    def __init__(self, dim, num_heads, dropout_p, drop_path_p, sr_ratio):
+        super().__init__()
+        # One transformer block is defined as :
+        # Norm -> self-attention -> Norm -> FeedForward
+        # skip-connections are added after attention and FF layers
+        self.attn = efficient_self_attention(attn_dim=dim, num_heads=num_heads,
+                                             dropout_p=dropout_p, sr_ratio=sr_ratio)
+        self.ffn = mix_feedforward(dim, dim, hidden_features=dim * 4, dropout_p=dropout_p)
+
+        self.drop_path_p = drop_path_p
+        self.norm1 = nn.LayerNorm(dim, eps=1e-6)
+        self.norm2 = nn.LayerNorm(dim, eps=1e-6)
+
+    def forward(self, x, h, w):
+        # Norm -> self-attention
+        skip = x
+        x = self.norm1(x)
+        x = self.attn(x, h, w)
+        x = drop_path(x, drop_prob=self.drop_path_p, training=self.training)
+        x = x + skip
+
+        # Norm -> FeedForward
+        skip = x
+        x = self.norm2(x)
+        x = self.ffn(x, h, w)
+        x = drop_path(x, drop_prob=self.drop_path_p, training=self.training)
+        x = x + skip
+        return x
+
+
+class mix_transformer_stage(nn.Module):
+    def __init__(self, patch_embed, blocks, norm):
+        super().__init__()
+        self.patch_embed = patch_embed
+        self.blocks = nn.ModuleList(blocks)
+        self.norm = norm
+
+    def forward(self, x):
+        x, h, w = self.patch_embed(x)
+        for block in self.blocks:
+            x = block(x, h, w)
+        x = self.norm(x)
+        x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w)
+        return x
+
+
+class mix_transformer(nn.Module):
+    def __init__(self, in_chans, embed_dims, num_heads, depths,
+                 sr_ratios, dropout_p, drop_path_p):
+        super().__init__()
+        self.stages = nn.ModuleList()
+        for stage_i in range(len(depths)):
+            # Each Stage consists of following blocks :
+            # Overlap patch embedding -> mix_transformer_block -> norm
+            blocks = []
+            for i in range(depths[stage_i]):
+                blocks.append(transformer_block(dim=embed_dims[stage_i],
+                                                num_heads=num_heads[stage_i], dropout_p=dropout_p,
+                                                drop_path_p=drop_path_p * (sum(depths[:stage_i]) + i) / (
+                                                            sum(depths) - 1),
+                                                sr_ratio=sr_ratios[stage_i]))
+
+            if (stage_i == 0):
+                patch_size = 7
+                stride = 4
+                in_chans = in_chans
+            else:
+                patch_size = 3
+                stride = 2
+                in_chans = embed_dims[stage_i - 1]
+
+            patch_embed = overlap_patch_embed(patch_size, stride=stride, in_chans=in_chans,
+                                              embed_dim=embed_dims[stage_i])
+            norm = nn.LayerNorm(embed_dims[stage_i], eps=1e-6)
+            self.stages.append(mix_transformer_stage(patch_embed, blocks, norm))
+
+    def forward(self, x):
+        outputs = []
+        for stage in self.stages:
+            x = stage(x)
+            outputs.append(x)
+        return outputs
+        
