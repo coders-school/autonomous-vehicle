@@ -9,7 +9,7 @@
 
 # Precompiled Headers
 *.gch
-*.pch
+*.pc
 
 # Compiled Dynamic libraries
 *.so
@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+.DS_Store
+
+# Dataset files
+dataset

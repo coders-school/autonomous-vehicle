@@ -35,7 +35,7 @@ def check_img_by_idx(idx: int, images=np.ndarray, labels=np.array) -> None:
 
 if __name__ == "__main__":
     # Load images and labels (binary mask)
-    images = np.load("dataset/image_180_320.npy")
-    labels = np.load("dataset/label_180_320.npy")
+    images = np.load("dataset/image_180_320.npy", allow_pickle=True)
+    labels = np.load("dataset/label_180_320.npy", allow_pickle=True)
 
     check_img_by_idx(316, images, labels)
