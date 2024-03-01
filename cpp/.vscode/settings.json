@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "array": "cpp",
+        "any": "cpp",
+        "string_view": "cpp",
+        "span": "cpp",
+        "regex": "cpp"
+    }
+}
