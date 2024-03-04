@@ -14,7 +14,7 @@ output_path = 'dataset'
 images = np.load("dataset/image_180_320.npy")
 labels = np.load("dataset/label_180_320.npy")
 
-train_set, val_set, test_set= get_datasets(images, labels)
+train_set, val_set, test_set = get_datasets(images, labels)
 sample_image, sample_label = train_set[0]
 print(f"There are {len(train_set)} train images, {len(val_set)} validation images, {len(test_set)} test Images")
 print(f"Input shape = {sample_image.shape}, output label shape = {sample_label.shape}")
@@ -22,12 +22,12 @@ print(f"Input shape = {sample_image.shape}, output label shape = {sample_label.s
 train_dataloader, val_dataloader, test_dataloader = get_dataloaders(train_set, val_set, test_set)
 
 # Each label is a tuple with name, class id and color
-Label = namedtuple( "Label", [ "name", "train_id", "color"])
+Label = namedtuple("Label", ["name", "train_id", "color"])
 drivables = [
-             Label("direct", 0, (32, 146, 190)),        # red
-             Label("alternative", 1, (119, 231, 124)),  # cyan
-             Label("background", 2, (0, 0, 0)),        # black
-            ]
+    Label("direct", 0, (32, 146, 190)),  # red
+    Label("alternative", 1, (119, 231, 124)),  # cyan
+    Label("background", 2, (0, 0, 0)),  # black
+]
 
 train_id_to_color = [c.color for c in drivables if (c.train_id != -1 and c.train_id != 255)]
 train_id_to_color = np.array(train_id_to_color)

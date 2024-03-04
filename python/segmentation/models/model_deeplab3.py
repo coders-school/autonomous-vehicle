@@ -34,7 +34,7 @@ class aspp_pool(nn.Module):
         input_size = x.shape[-2:]
         x = self.pooling_module(x)
         return F.interpolate(x, size=input_size, mode='bilinear', align_corners=False)
-        
+
 
 class atrous_spatial_pyramid_pooling(nn.Module):
     def __init__(self, in_channels, out_channels, dilation_rates):
@@ -70,8 +70,8 @@ class atrous_spatial_pyramid_pooling(nn.Module):
 
         output = self.project(torch.cat(conv_outputs, dim=1))
         return output
-        
-        
+
+
 class deeplabv3_decoder(nn.Module):
     def __init__(self, num_classes):
         super(deeplabv3_decoder, self).__init__()
@@ -98,8 +98,8 @@ class deeplabv3_decoder(nn.Module):
 
         x = self.cls(x)
         return x
-        
-        
+
+
 class deeplabv3_plus(nn.Module):
     def __init__(self, in_channels, output_stride, num_classes):
         super(deeplabv3_plus, self).__init__()
@@ -141,4 +141,3 @@ class deeplabv3_plus(nn.Module):
         aspp_output = self.aspp_module(x)
         decoder_output = self.decoder(aspp_output, low_level_feat)
         return F.interpolate(decoder_output, size=input_size, mode='bilinear', align_corners=False)
-        

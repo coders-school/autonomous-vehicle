@@ -22,8 +22,8 @@ class overlap_patch_embed(nn.Module):
         x = rearrange(x, 'b c h w -> b (h w) c')
         x = self.norm(x)
         return x, h, w
-        
-        
+
+
 class mix_feedforward(nn.Module):
     def __init__(self, in_features, out_features, hidden_features, dropout_p=0.0):
         super().__init__()
@@ -45,8 +45,8 @@ class mix_feedforward(nn.Module):
         x = self.fc2(x)
         x = F.dropout(x, p=self.dropout_p, training=self.training)
         return x
-    
-    
+
+
 class efficient_self_attention(nn.Module):
     def __init__(self, attn_dim, num_heads, dropout_p, sr_ratio):
         super().__init__()
@@ -69,7 +69,6 @@ class efficient_self_attention(nn.Module):
         # multiple heads to single `attn_dim` size
         self.proj = nn.Linear(attn_dim, attn_dim)
 
-
     def forward(self, x, h, w):
         q = self.q(x)
         q = rearrange(q, ('b hw (m c) -> b m hw c'), m=self.num_heads)
@@ -82,7 +81,7 @@ class efficient_self_attention(nn.Module):
 
         x = self.kv(x)
         x = rearrange(x, 'b d (a m c) -> a b m d c', a=2, m=self.num_heads)
-        k, v = x[0], x[1] # x.unbind(0)
+        k, v = x[0], x[1]  # x.unbind(0)
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
@@ -92,8 +91,8 @@ class efficient_self_attention(nn.Module):
         x = self.proj(x)
         x = F.dropout(x, p=self.dropout_p, training=self.training)
         return x
-        
-        
+
+
 class transformer_block(nn.Module):
     def __init__(self, dim, num_heads, dropout_p, drop_path_p, sr_ratio):
         super().__init__()
@@ -154,7 +153,7 @@ class mix_transformer(nn.Module):
                 blocks.append(transformer_block(dim=embed_dims[stage_i],
                                                 num_heads=num_heads[stage_i], dropout_p=dropout_p,
                                                 drop_path_p=drop_path_p * (sum(depths[:stage_i]) + i) / (
-                                                            sum(depths) - 1),
+                                                        sum(depths) - 1),
                                                 sr_ratio=sr_ratios[stage_i]))
 
             if (stage_i == 0):
@@ -177,8 +176,8 @@ class mix_transformer(nn.Module):
             x = stage(x)
             outputs.append(x)
         return outputs
-        
-        
+
+
 class segformer_head(nn.Module):
     def __init__(self, in_channels, num_classes, embed_dim, dropout_p=0.1):
         super().__init__()
@@ -218,18 +217,18 @@ class segformer_head(nn.Module):
         x = F.dropout(x, p=self.dropout_p, training=self.training)
         x = self.linear_pred(x)
         return x
-    
-    
-class segformer_mit_b3(nn.Module):    
+
+
+class segformer_mit_b3(nn.Module):
     def __init__(self, in_channels, num_classes):
         super().__init__()
         # Encoder block    
-        self.backbone = mix_transformer(in_chans=in_channels, embed_dims=(64, 128, 320, 512), 
-                                    num_heads=(1, 2, 5, 8), depths=(3, 4, 18, 3),
-                                    sr_ratios=(8, 4, 2, 1), dropout_p=0.0, drop_path_p=0.1)
+        self.backbone = mix_transformer(in_chans=in_channels, embed_dims=(64, 128, 320, 512),
+                                        num_heads=(1, 2, 5, 8), depths=(3, 4, 18, 3),
+                                        sr_ratios=(8, 4, 2, 1), dropout_p=0.0, drop_path_p=0.1)
         # decoder block
-        self.decoder_head = segformer_head(in_channels=(64, 128, 320, 512), 
-                                    num_classes=num_classes, embed_dim=256)
+        self.decoder_head = segformer_head(in_channels=(64, 128, 320, 512),
+                                           num_classes=num_classes, embed_dim=256)
 
     def forward(self, x):
         image_hw = x.shape[2:]
@@ -237,4 +236,3 @@ class segformer_mit_b3(nn.Module):
         x = self.decoder_head(x)
         x = F.interpolate(x, size=image_hw, mode='bilinear', align_corners=False)
         return x
-        
