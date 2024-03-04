@@ -151,8 +151,9 @@ class mix_transformer(nn.Module):
             for i in range(depths[stage_i]):
                 blocks.append(transformer_block(dim=embed_dims[stage_i],
                                                 num_heads=num_heads[stage_i], dropout_p=dropout_p,
-                                                drop_path_p=drop_path_p * (sum(depths[:stage_i]) + i) / (
-                                                        sum(depths) - 1),
+                                                drop_path_p=drop_path_p
+                                                            * (sum(depths[:stage_i]) + i)
+                                                            / (sum(depths) - 1),
                                                 sr_ratio=sr_ratios[stage_i]))
 
             if stage_i == 0:

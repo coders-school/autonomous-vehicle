@@ -85,7 +85,7 @@ class roi_select():
 
     def get_bbox_indices(self, scale_factor=None):
         pts = np.array(self.selected_points)
-        if (scale_factor is not None):
+        if scale_factor is not None:
             pts = pts * scale_factor
 
         # bounding box coordinates as indices 
@@ -193,7 +193,7 @@ class pspnet_loss(nn.Module):
         # if input predictions is in dict format
         # calculate total loss as weighted sum of 
         # main and auxiliary losses
-        if isinstance(preds, dict) == True:
+        if isinstance(preds, dict):
             main_loss = self.loss_fn(preds['main'], labels)
             aux_loss = self.loss_fn(preds['aux'], labels)
             loss = (1 - self.aux_weight) * main_loss + self.aux_weight * aux_loss
@@ -327,7 +327,9 @@ def train_validate_model(model, num_epochs, model_name, criterion, optimizer,
             model, dataloader_valid, criterion, metric_class, num_classes, device)
 
         print(
-            f'Epoch: {epoch + 1}, trainLoss:{train_loss:6.5f}, validationLoss:{validation_loss:6.5f}, {metric_name}:{validation_metric: 4.2f}')
+            f'Epoch: {epoch + 1}, trainLoss:{train_loss:6.5f}, validationLoss:{validation_loss:6.5f}, '
+            f'{metric_name}:{validation_metric: 4.2f}'
+        )
 
         # store results
         results.append({'epoch': epoch,
@@ -339,7 +341,6 @@ def train_validate_model(model, num_epochs, model_name, criterion, optimizer,
         if validation_loss <= min_val_loss:
             min_val_loss = validation_loss
             torch.save(model.state_dict(), f"{output_path}/{model_name}.pt")
-            # torch.jit.save(torch.jit.script(model), f"{output_path}/{model_name}.pt")
 
     # plot results
     results = pd.DataFrame(results)
