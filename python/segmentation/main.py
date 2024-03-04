@@ -1,20 +1,12 @@
 # Import libraries
 import numpy as np
 
-# Libraries for Deep Learning
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 # Libraries for loading image, plotting
 import cv2
 import matplotlib.pyplot as plt
 
-# Library for basic segmentation
-import segmentation_models_pytorch as smp
 
-
-def check_img_by_idx(idx: int, images=np.ndarray, labels=np.array) -> None:
+def check_img_by_idx(idx, images, labels):
     """
     Function to plot image that contains frame from traffic (car camera POV) and label that
     contains segmented road.

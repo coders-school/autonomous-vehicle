@@ -1,5 +1,5 @@
 from models.model_deeplab3 import deeplabv3_plus
-from utilities.data_loader import output_path, train_dataloader, val_dataloader, test_dataloader
+from utilities.data_loader import output_path, train_dataloader, val_dataloader
 from utilities.hyperparameters import device, N_EPOCHS, NUM_CLASSES, MAX_LR, MODEL_NAME
 
 import torch.optim as optim

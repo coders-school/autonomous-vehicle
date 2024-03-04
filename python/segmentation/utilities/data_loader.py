@@ -1,11 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 # utility functions to get BDD100k Pytorch dataset and dataloaders
 from utils import get_datasets, get_dataloaders
-
 from collections import namedtuple
-
 from utils import inverse_transform
 
 # TODO: convert to function
@@ -35,13 +32,3 @@ train_id_to_color = np.array(train_id_to_color)
 rgb_image, label = train_set[np.random.choice(len(train_set))]
 rgb_image = inverse_transform(rgb_image).permute(1, 2, 0).cpu().detach().numpy()
 label = label.cpu().detach().numpy()
-
-# # plot sample image
-# fig, axes = plt.subplots(1,2, figsize=(20,10))
-# axes[0].imshow(rgb_image)
-# axes[0].set_title("Image")
-# axes[0].axis('off')
-# axes[1].imshow(train_id_to_color[label])
-# axes[1].set_title("Label")
-# axes[1].axis('off')
-# plt.show()

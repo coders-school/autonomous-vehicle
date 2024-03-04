@@ -401,7 +401,7 @@ def predict_video(model, model_name, input_video_path, output_dir,
 
     # handles for input output videos
     input_handle = cv2.VideoCapture(input_video_path)
-    output_handle = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'DIVX'), \
+    output_handle = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'DIVX'),
                                     30, (target_width, target_height))
 
     # create progress bar
@@ -410,7 +410,7 @@ def predict_video(model, model_name, input_video_path, output_dir,
 
     while input_handle.isOpened():
         ret, frame = input_handle.read()
-        if ret == True:
+        if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # create torch tensor to give as input to model

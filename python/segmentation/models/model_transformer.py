@@ -4,8 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from einops import rearrange
-import segmentation_models_pytorch as smp
-from timm.models.layers import drop_path, trunc_normal_
+from timm.models.layers import drop_path
 
 
 class overlap_patch_embed(nn.Module):
@@ -156,7 +155,7 @@ class mix_transformer(nn.Module):
                                                         sum(depths) - 1),
                                                 sr_ratio=sr_ratios[stage_i]))
 
-            if (stage_i == 0):
+            if stage_i == 0:
                 patch_size = 7
                 stride = 4
                 in_chans = in_chans

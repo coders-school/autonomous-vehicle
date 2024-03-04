@@ -84,7 +84,7 @@ class PSPNet(nn.Module):
 
         # Define Auxilary branch if specified
         self.use_aux = False
-        if (self.training and use_aux):
+        if self.training and use_aux:
             self.use_aux = True
             self.aux_branch = nn.Sequential(
                 nn.Conv2d(int(ppm_in_channels / 2), 256, kernel_size=3, padding=1, bias=False),
@@ -109,7 +109,7 @@ class PSPNet(nn.Module):
         main_output = F.interpolate(main_output, size=input_size, mode='bilinear')
 
         # If needed, get auxiliary branch output
-        if (self.training and self.use_aux):
+        if self.training and self.use_aux:
             aux_output = F.interpolate(self.aux_branch(x_aux), size=input_size, mode='bilinear')
             output = {}
             output['aux'] = aux_output
